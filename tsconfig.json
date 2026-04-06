@@ -1,0 +1,21 @@
+// backend/tsconfig.json
+{
+  "compilerOptions": 
+  {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "verbatimModuleSyntax": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "checkJs": true,
+    "allowJs": true,
+    // noEmit: true = vérifie les types sans générer de fichiers
+    // On garde Node 24 natif pour exécuter -- pas de compilation réelle
+  },
+  "include": ["src/**/*"]
+}
