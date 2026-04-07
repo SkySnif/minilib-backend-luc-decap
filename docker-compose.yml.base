@@ -1,0 +1,23 @@
+services:
+  minilib_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ##### END BUILD CONF - START compose up arg ##########################
+    environment:
+      PORT: 5001
+      NODE_ENV: development
+      DB_HOST: 192.168.100.10
+      DB_PORT: 5432
+      DB_NAME: minilib
+      DB_USER: minilib_user
+      DB_PASSWORD_FILE: /run/secrets/db_minilib_password
+    ports:
+      - "5001:5001"
+    secrets:
+      - db_minilib_password
+
+secrets:
+  db_minilib_password:
+    name: db_minilib_password
+    file: /home/afpa/.secrets/AFPA/minilib_db_user

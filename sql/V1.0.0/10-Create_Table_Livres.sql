@@ -1,5 +1,6 @@
 -- Table livres
-CREATE TABLE IF NOT EXISTS livres (
+CREATE TABLE IF NOT EXISTS livres
+(
     id SERIAL PRIMARY KEY,
     isbn VARCHAR(13) UNIQUE NOT NULL,
     titre VARCHAR(255) NOT NULL,
@@ -16,7 +17,7 @@ CREATE TABLE IF NOT EXISTS livres (
     disponible BOOLEAN NOT NULL DEFAULT TRUE
 );
 
-CREATE INDEX idx_livres_titre ON livres(titre);
+CREATE INDEX IF NOT EXISTS idx_livres_titre ON livres(titre);
 
-CREATE INDEX idx_livres_auteur ON livres(auteur);
+CREATE INDEX IF NOT EXISTS idx_livres_auteur ON livres(auteur);
 

@@ -22,7 +22,7 @@ import adherentsRouter from './routes/adherent.js';
 // ── Initialisation of Express' application  ──────────────────────────
 const app: Application = express();
 const PORT: number|string = env.PORT || 5000;
-console.log(`DBPASS:${env.DB_PASSWORD}`);
+
 // ── Middlewares globaux ───────────────────────────────────────────────
 // cors() : autorise les requêtes cross-origin (React sur port 3000 → APIsur 5000)
 app.use( cors());

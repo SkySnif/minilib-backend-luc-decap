@@ -1,5 +1,6 @@
 -- Table emprunts
-CREATE TABLE emprunts IF NOT EXISTS (
+CREATE TABLE IF NOT EXISTS emprunts 
+(
     id SERIAL PRIMARY KEY,
     livre_id INTEGER NOT NULL REFERENCES livres(id),
     adherent_id INTEGER NOT NULL REFERENCES adherents(id),
@@ -10,6 +11,6 @@ CREATE TABLE emprunts IF NOT EXISTS (
     CONSTRAINT chk_dates CHECK (date_retour_prevue >= date_emprunt)
 );
 
-CREATE INDEX idx_emprunts_actifs ON emprunts(adherent_id)
+CREATE INDEX IF NOT EXISTS idx_emprunts_actifs ON emprunts(adherent_id)
 WHERE
     date_retour_effective IS NULL;

@@ -1,4 +1,5 @@
-CREATE TABLE adherents IF NOT EXISTS livres (
+CREATE TABLE IF NOT EXISTS adherents 
+(
     id SERIAL PRIMARY KEY,
     numero_adherent VARCHAR(20) UNIQUE NOT NULL,
     nom VARCHAR(100) NOT NULL,
@@ -8,4 +9,4 @@ CREATE TABLE adherents IF NOT EXISTS livres (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_adherents_email ON adherents(email);
+CREATE INDEX IF NOT EXISTS idx_adherents_email ON adherents(email);

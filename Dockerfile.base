@@ -1,0 +1,45 @@
+########################################
+# STAGE 1 — BUILD
+########################################
+FROM node:25.7.0-alpine AS builder
+
+WORKDIR /app
+
+# pnpm installer 
+RUN npm install -g pnpm
+
+# Copy necesary file for install modules
+COPY package.json pnpm-lock.yaml ./
+COPY tsconfig*.json ./
+
+RUN pnpm install --frozen-lockfile
+
+# source code copy
+COPY src ./src
+
+# Build TypeScript → dist/
+RUN pnpm run build
+
+########################################
+# STAGE 2 — RUNTIME
+########################################
+FROM node:25.7.0-alpine
+
+WORKDIR /app
+
+# pnpm installer
+RUN npm install -g pnpm
+
+# Copy necesary file for install modules
+COPY package.json pnpm-lock.yaml ./
+
+# Copy build from builder
+# node_module are copied from builder stage to avoid pnpm install again and dependencies with registry - like .npmrc 
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+
+# Exposer le port
+EXPOSE 4000
+
+# Lancer l'app (JS compilé uniquement)
+CMD ["pnpm", "run", "start"]
