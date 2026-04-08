@@ -19,7 +19,7 @@ services:
       DB_NAME: minilib
       DB_USER: minilib_user
       DB_PASSWORD_FILE: /run/secrets/db_minilib_password
-      TAG_VERSION: 1.0.0 # Use for autodeploy SQL and services version coherency between current deployed image and past   
+      SERVICE_TAG_VERSION: 1.0.0 # Use for autodeploy SQL and services version coherency between current deployed image and past   
     ports:
       - "5001:5001"
     secrets:
