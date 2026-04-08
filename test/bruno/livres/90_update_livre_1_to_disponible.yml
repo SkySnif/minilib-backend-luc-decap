@@ -1,0 +1,32 @@
+info:
+  name: 90_update_livre_1_to_disponible
+  type: http
+  seq: 9
+
+http:
+  method: PUT
+  url: http://{{BRUNO_TEST_URL}}:{{BRUNO_TEST_PORT}}/api/v1/livres/2
+  body:
+    type: json
+    data: '{ "disponible": false }'
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("should return 200", function () {
+          expect(res.getStatus()).to.equal(200);
+        });
+             
+        test("sould return disponible false", function () {
+          const body = res.getBody();
+
+          expect(body.disponible).to.be.false
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

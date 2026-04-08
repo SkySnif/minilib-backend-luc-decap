@@ -1,0 +1,44 @@
+info:
+  name: 80_new_livre_sans_titre
+  type: http
+  seq: 8
+
+http:
+  method: POST
+  url: http://{{BRUNO_TEST_URL}}:{{BRUNO_TEST_PORT}}/api/v1/livres
+  body:
+    type: json
+    data: |-
+      {
+      "isbn": "9780596517748",
+      "auteur": "Douglas Crockford",
+      "annee": 2008,
+      "genre": "Informatique"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("should return 400", function () {
+          expect(res.getStatus()).to.equal(400);
+        });
+             
+        test("sould return champs manquants", function () {
+          const body = res.getBody();
+          
+          expect(body.status).to.equal("error");
+          expect(body.message).to.equal("Validation failed");
+          
+          const champsManquant=body.details[0].path;
+          expect(champsManquant).to.be.an("array");
+          expect(champsManquant[0]).to.equal("titre")
+
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

@@ -26,7 +26,7 @@ import type { Adherent, CreateAdherentDto } from '../validators/adherentSchema.j
 const genererNumeroAdherent = async (): Promise<string> => 
 {
     const result: QueryResult<CountRow> = await pool.query<CountRow>( 'SELECT COUNT(*) FROM adherents');
-    const count = parseInt( result.rows[0].count) + 1;
+    const count: Number = parseInt( result.rows[0].count) + 1;
 
     return `ADH-${String(count).padStart(3, '0')}`; // ADH-001, ADH-042...
 };

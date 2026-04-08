@@ -53,6 +53,7 @@ export const createAdherent = async (
     req: Request<{}, Adherent, CreateAdherentDto, {}>,
     res: Response) : Promise<void> => 
 {
+    // Obselete with zod validation
     const champsObligatoires: (keyof CreateAdherentDto)[] = ['nom','prenom','email'];
     const manquants = champsObligatoires.filter( k => !req.body[k]);
 

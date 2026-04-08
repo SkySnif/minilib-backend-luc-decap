@@ -1,0 +1,43 @@
+info:
+  name: 30_create_adherent
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: http://{{BRUNO_TEST_URL}}:{{BRUNO_TEST_PORT}}/api/v1/adherents
+  body:
+    type: json
+    data: |-
+      {
+      "nom": "Luc",
+      "prenom": "DECAP",
+      "email": "decap5.professional@gmail.com",
+      "UnChamps": "FMKFDS"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("should return 201 or 409", function () {
+          expect([201, 409]).to.include(res.getStatus());
+        });
+             
+        test("should return new adherent", function () {
+          const body = res.getBody();
+
+          if (res.getStatus() === 201) {
+            expect(body).to.have.property("id");
+          }
+          else if (res.getStatus() === 409) {
+            expect(body.message).to.be.equal("Duplicate data")
+          } 
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

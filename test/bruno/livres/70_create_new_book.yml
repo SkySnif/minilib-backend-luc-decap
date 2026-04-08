@@ -1,0 +1,46 @@
+info:
+  name: 70_create_new_book
+  type: http
+  seq: 7
+
+http:
+  method: POST
+  url: http://{{BRUNO_TEST_URL}}:{{BRUNO_TEST_PORT}}/api/v1/livres
+  body:
+    type: json
+    data: |-
+      {
+      "isbn": "978059fd17748",
+      "titre": "JavaScript: The Good Parts",
+      "auteur": "Douglas Crockford",
+      "annee": 2008,
+      "genre": "Informatique",
+      "AutresChamps": "FFD",
+      "EncoreUn": "DSSMK"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("should return 201 or 409", function () {
+          expect([201, 409]).to.include(res.getStatus());
+        });
+             
+        test("should return new book", function () {
+          const body = res.getBody();
+
+          if (res.getStatus() === 201) {
+            expect(body).to.have.property("id");
+          }
+          else if (res.getStatus() === 409) {
+            expect(body.message).to.be.equal("Duplicate data")
+          } 
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

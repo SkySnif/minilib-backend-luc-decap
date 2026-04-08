@@ -1,0 +1,33 @@
+info:
+  name: 20_view_livres
+  type: http
+  seq: 2
+
+http:
+  method: GET
+  url: http://{{BRUNO_TEST_URL}}:{{BRUNO_TEST_PORT}}/api/v1/livres
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: tests
+      code: |-
+        test("should return 200", function () {
+          expect(res.getStatus()).to.equal(200);
+        });
+
+        test("should return array of livres", function () {
+          const livres = res.getBody();
+          
+          expect(livres).to.be.an("array");
+          
+          //expect(users).to.have.lengthOf(3);
+          
+           expect(livres[0]).to.have.property("id");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
