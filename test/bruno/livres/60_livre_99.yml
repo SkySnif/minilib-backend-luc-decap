@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: http://{{BRUNO_TEST_URL}}:{{BRUNO_TEST_PORT}}/api/v1/livres/99
+  url: http://{{BRUNO_TEST_URL}}:{{BRUNO_TEST_PORT}}/api/v1/minilib//99
   body:
     type: json
     data: ""

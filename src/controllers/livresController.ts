@@ -3,7 +3,7 @@
 
 import type { Request, Response } from 'express';
 
-import { BadRequestError, NotFoundError } from "../utils/errors/index.js";
+import { BadRequestError, NotFoundError } from "@hendec/backend/utils";
 
 // import { Livre, FiltresLivre, CreateLivreDto } from '../types/livre.js';
 import type {  Livre, FiltresLivre, CreateLivreDto } from "@hendec/types/minilib";

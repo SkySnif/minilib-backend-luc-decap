@@ -3,7 +3,7 @@
 // Start with : npm run dev
 
 // environment variable loader - needed for secret files
-import { env } from './config/env.js';
+import { env } from './config/envConfig.js';
 
 import express from 'express';
 import type { Request, Response, NextFunction, Application} from 'express';
@@ -13,7 +13,8 @@ import cors from 'cors';
 // Node 20+ : no need .dotenv // charge les variables depuis .env
 
 // Error handler
-import errorHandler from "./middleware/errorHandler.js";
+import { errorHandler } from "@hendec/backend/middleware";
+import { logger } from "@hendec/backend";
 
 // Router Import
 import livresRouter from './routes/livres.js';
@@ -33,17 +34,17 @@ app.use( express.json());
 // Middleware de logging minimaliste — affiche chaque requête reçue
 app.use( ( req: Request, res: Response, next: NextFunction) => 
     {
-        console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-        next(); // next() = passer au middleware/route suivant
+      logger.info( `[${new Date().toISOString()}] ${req.method} ${req.url}`);
+      next(); // next() = passer au middleware/route suivant
     }
 );
 
 // ── Routes ───────────────────────────────────────────────────────────
 // All livres's route are prefixe by  /api/v1/livres
-app.use( '/api/v1/livres', livresRouter);
+app.use( `${env.MAIN_HTTP_ROUTE}/livres`, livresRouter);
 
 // All adherents' route are prefixe by  /api/v1/adherents
-app.use( '/api/v1/adherents', adherentsRouter);
+app.use( `${env.MAIN_HTTP_ROUTE}/adherents`, adherentsRouter);
 
 // All emprunt's route are prefixe by  /api/v1/emprunt
 // app.use( '/api/v1/emprunts', empruntsRouter);
@@ -61,16 +62,6 @@ app.get( '/health', ( req: Request, res: Response) =>
     }
 );
 
-// // Middleware to manage unknow route (404)
-// app.use( ( req: Request, res: Response) => 
-//     {
-//         res.status(404).json(
-//             {
-//                 erreur: `Route ${req.method} ${req.url} not find`,
-//             }
-//         );
-//     }
-// );
 
 // Middleware de gestion des erreurs serveur (500)
 // Express reconnaît ce middleware à ses 4 paramètres (err en premier)
@@ -81,7 +72,7 @@ app.use(errorHandler);
 app.listen( PORT, (): void => 
     {
         console.log(`MiniLib server started on http://localhost:${PORT}`);
-        console.log(`Environment : ${process.env.NODE_ENV}`);
+        console.log(`Environment : ${env.NODE_ENV}`);
     }
 );
 

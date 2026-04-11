@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: http://{{BRUNO_TEST_URL}}:{{BRUNO_TEST_PORT}}/api/v1/livres?genre=Informatique
+  url: http://{{BRUNO_TEST_URL}}:{{BRUNO_TEST_PORT}}/api/v1/minilib/livres?genre=Informatique
   params:
     - name: genre
       value: Informatique

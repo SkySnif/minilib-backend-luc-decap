@@ -2,10 +2,12 @@
 // Routeur Express pour les livres
 // Toutes ces routes sont préfixées par /api/v1/livres dans app.js
 import express, { Router } from 'express';
-import asyncWrapper from '../middleware/asyncWrapper.js';
-import validate from '../middleware/validate.js';
+
+import { asyncWrapper } from '@hendec/backend/middleware';
+import { validate } from '@hendec/backend/middleware';
 
 import { createLivreSchema } from "@hendec/types/minilib";
+
 import * as controller from '../controllers/livresController.js';
 
 const router: Router = express.Router();

@@ -5,7 +5,7 @@ info:
 
 http:
   method: POST
-  url: http://{{BRUNO_TEST_URL}}:{{BRUNO_TEST_PORT}}/api/v1/adherents
+  url: http://{{BRUNO_TEST_URL}}:{{BRUNO_TEST_PORT}}/api/v1/minilib/adherents
   body:
     type: json
     data: |-

@@ -1,7 +1,8 @@
 // backend/src/routes/emprunt.js
 import express, { Router } from 'express';
-import asyncWrapper from '../middleware/asyncWrapper.js';
-import validate from '../middleware/validate.js';
+
+import { asyncWrapper } from '@hendec/backend/middleware';
+import { validate } from '@hendec/backend/middleware';
 
 import { createEmpruntSchema } from '@hendec/types/minilib';
 import * as controller from '../controllers/empruntsController.js';

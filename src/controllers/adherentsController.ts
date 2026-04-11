@@ -1,7 +1,7 @@
 // backend/src/controllers/adherentsController.js
 import type { Request, Response } from 'express';
 
-import { BadRequestError, NotFoundError } from "../utils/errors/index.js";
+import { BadRequestError, NotFoundError } from "@hendec/backend/utils";
 
 //import { Adherent, CreateAdherentDto } from '../types/adherent.js';
 import type { Adherent, CreateAdherentDto } from '@hendec/types/minilib';

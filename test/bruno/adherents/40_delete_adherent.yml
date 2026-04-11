@@ -5,7 +5,7 @@ info:
 
 http:
   method: DELETE
-  url: http://{{BRUNO_TEST_URL}}:{{BRUNO_TEST_PORT}}/api/v1/adherents/1
+  url: http://{{BRUNO_TEST_URL}}:{{BRUNO_TEST_PORT}}/api/v1/minilib/adherents/1
   auth: inherit
 
 runtime:

@@ -5,22 +5,24 @@
 * @module database
 */
 // environment variable loader - needed for secret files
-import { env } from './env.js';
-import { Pool } from 'pg';
+import { env } from './envConfig.js';
+import { createPool } from "@hendec/backend/config";
 
-const pool: Pool = new Pool(
-    {
-        host: env.DB_HOST,
-        port: env.DB_PORT,
-        database: env.DB_NAME,
-        user: env.DB_USER,
-        password: env.DB_PASSWORD,
-        max: 10,
-        idleTimeoutMillis: 30000,
-    }
-);
+const pool = createPool(env.db);
 
-pool.on('connect', () => console.log( '[DB] Pool PostgreSQL connecté'));
-pool.on('error', (err: Error) => console.error( '[DB] Erreur pool:', err.message,  err.stack));
+// const pool: Pool = new Pool(
+//     {
+//         host: env.DB_HOST,
+//         port: env.DB_PORT,
+//         database: env.DB_NAME,
+//         user: env.DB_USER,
+//         password: env.DB_PASSWORD,
+//         max: 10,
+//         idleTimeoutMillis: 30000,
+//     }
+// );
+
+// pool.on('connect', () => console.log( '[DB] Pool PostgreSQL connecté'));
+// pool.on('error', (err: Error) => console.error( '[DB] Erreur pool:', err.message,  err.stack));
 
 export default pool;

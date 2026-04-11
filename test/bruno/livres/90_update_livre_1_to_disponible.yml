@@ -5,7 +5,7 @@ info:
 
 http:
   method: PUT
-  url: http://{{BRUNO_TEST_URL}}:{{BRUNO_TEST_PORT}}/api/v1/livres/2
+  url: http://{{BRUNO_TEST_URL}}:{{BRUNO_TEST_PORT}}/api/v1/minilib/livres/2
   body:
     type: json
     data: '{ "disponible": false }'

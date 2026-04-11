@@ -1,6 +1,6 @@
 // src/utils/errors/businessErrors.ts
 
-import { ConflictError, NotFoundError } from "../httpErrors.js";
+import { ConflictError, NotFoundError } from "@hendec/backend/utils";
 
 export class DuplicateLivreError extends ConflictError {
     constructor() {

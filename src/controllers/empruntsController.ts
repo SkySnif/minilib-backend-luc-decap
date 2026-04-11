@@ -1,11 +1,9 @@
 // backend/src/controllers/empruntsController.js
 import type { Request, Response } from 'express';
 
-import { NotFoundError } from "../utils/errors/index.js";
+import { NotFoundError } from "@hendec/backend/utils";
 
 import type { Emprunt } from '@hendec/types/minilib';
-//import { Emprunt } from '../types/emprunt.js';
-
 import * as empruntsModel from '../models/empruntsModel.js';
 
 /** GET /api/v1/emprunts */

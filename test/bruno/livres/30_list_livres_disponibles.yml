@@ -5,7 +5,7 @@ info:
 
 http:
   method: GET
-  url: http://{{BRUNO_TEST_URL}}:{{BRUNO_TEST_PORT}}/api/v1/livres?disponible=true
+  url: http://{{BRUNO_TEST_URL}}:{{BRUNO_TEST_PORT}}/api/v1/minilib/livres?disponible=true
   params:
     - name: disponible
       value: "true"

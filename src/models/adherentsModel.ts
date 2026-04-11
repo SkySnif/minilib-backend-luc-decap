@@ -3,10 +3,12 @@
 * Accès aux données adhérents via PostgreSQL.
 * @module adherentsModel
 */
+import type { QueryResult, CountRow} from '@hendec/types/db';
+
+import { mapDBError } from "@hendec/backend/utils";
+import { prepareInsert } from '@hendec/backend/utils';
+
 import pool from '../config/database.js';
-import type { QueryResult, CountRow} from '../types/queryResult.js';
-import { mapDBError } from "../utils/errors/db/dbErrorMapper.js";
-import { prepareInsert } from '../utils/helpers/dbhelper.js';
 
 // Error manager for specific error to catch associated to livres
 import { DuplicateAdherentsError } from "../utils/errors/modulesErrors/adherentsErrors.js";

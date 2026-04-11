@@ -4,17 +4,17 @@
 * @module empruntModel
 */
 
-import pool from '../config/database.js';
-import type { QueryResult } from '../types/queryResult.js';
+import type { QueryResult, CountRow} from '@hendec/types/db';
 
-// Manage to converte error code by DB in global error code
-import { mapDBError } from "../utils/errors/db/dbErrorMapper.js";
+import { mapDBError } from "@hendec/backend/utils";
+import { prepareInsert } from '@hendec/backend/utils';
+
+import pool from '../config/database.js';
 
 // Error manager for specific error to catch associated to livres
 import { DuplicateEmpruntsError  } from "../utils/errors/modulesErrors/EmpruntsErrors.js";
+import type { Emprunt } from "@hendec/types/minilib";
 
-// import { Livre, FiltresLivre, CreateLivreDto } from '../types/livre.js';
-import type { Emprunt  } from "@hendec/types/minilib";
 
 // ───────────────────────────────────────────────────────────────
 // ──── Export function ─ exposed to route ───────────────────────
