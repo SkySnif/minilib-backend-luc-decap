@@ -15,7 +15,7 @@ import { prepareInsert } from '@hendec/backend/utils';
 import pool from '../config/database.js';
 
 // Error manager for specific error to catch associated to livres
-import { DuplicateLivreError  } from "../utils/errors/modulesErrors/livresErrors.js";
+import { DuplicateLivreError  } from "../errors/modulesErrors/livresErrors.js";
 
 // import { Livre, FiltresLivre, CreateLivreDto } from '../types/livre.js';
 import type { Livre, FiltresLivre, CreateLivreDto } from "@hendec/types/minilib";
