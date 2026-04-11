@@ -3,7 +3,7 @@ import type { Request, Response } from 'express';
 
 import { NotFoundError } from "../utils/errors/index.js";
 
-import type { Emprunt } from '../validators/empruntShema.js';
+import type { Emprunt } from '@hendec/types/minilib';
 //import { Emprunt } from '../types/emprunt.js';
 
 import * as empruntsModel from '../models/empruntsModel.js';

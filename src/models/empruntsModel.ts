@@ -14,7 +14,7 @@ import { mapDBError } from "../utils/errors/db/dbErrorMapper.js";
 import { DuplicateEmpruntsError  } from "../utils/errors/modulesErrors/EmpruntsErrors.js";
 
 // import { Livre, FiltresLivre, CreateLivreDto } from '../types/livre.js';
-import type { Emprunt  } from "../validators/empruntShema.js";
+import type { Emprunt  } from "@hendec/types/minilib";
 
 // ───────────────────────────────────────────────────────────────
 // ──── Export function ─ exposed to route ───────────────────────

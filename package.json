@@ -6,19 +6,18 @@
   "private": true,
   "main": "src/app.js",
   "scripts": {
+    "lib-install": "pnpm uninstall @hendec/types; pnpm install @hendec/types; pnpm uninstall @hendec/backend; pnpm install @hendec/backend",
     "build": "tsc -p ./tsconfig.build.json",
     "start": "node dist/app.js",
-    "start:local": "tsx --env-file=.env src/app.ts",
-    "dev": "tsx --watch --env-file=.env src/app.ts",
+    "dev": "npm run lib-install && tsx --watch --env-file=.env src/app.ts",
     "test": "echo \"Tests à venir\""
   },
   "dependencies": {
+    "@hendec/types": "^0.0.1",
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "pg": "^8.20.0",
-    "swagger-ui-express": "^5.0.1",
-    "zod": "^4.3.6",
-    "zod-openapi": "^5.4.6"
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

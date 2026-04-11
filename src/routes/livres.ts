@@ -5,7 +5,7 @@ import express, { Router } from 'express';
 import asyncWrapper from '../middleware/asyncWrapper.js';
 import validate from '../middleware/validate.js';
 
-import { createLivreSchema } from "../validators/livreSchema.js";
+import { createLivreSchema } from "@hendec/types/minilib";
 import * as controller from '../controllers/livresController.js';
 
 const router: Router = express.Router();

@@ -18,7 +18,7 @@ import { mapDBError } from "../utils/errors/db/dbErrorMapper.js";
 import { DuplicateLivreError  } from "../utils/errors/modulesErrors/livresErrors.js";
 
 // import { Livre, FiltresLivre, CreateLivreDto } from '../types/livre.js';
-import type { Livre, FiltresLivre, CreateLivreDto } from "../validators/livreSchema.js";
+import type { Livre, FiltresLivre, CreateLivreDto } from "@hendec/types/minilib";
 
 /**
 * Récupère tous les livres avec filtres optionnels.

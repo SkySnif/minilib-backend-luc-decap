@@ -6,7 +6,7 @@ import type { Request, Response } from 'express';
 import { BadRequestError, NotFoundError } from "../utils/errors/index.js";
 
 // import { Livre, FiltresLivre, CreateLivreDto } from '../types/livre.js';
-import type {  Livre, FiltresLivre, CreateLivreDto } from "../validators/livreSchema.js";
+import type {  Livre, FiltresLivre, CreateLivreDto } from "@hendec/types/minilib";
 import * as livresModel from '../models/livresModel.js';
 
 /**
