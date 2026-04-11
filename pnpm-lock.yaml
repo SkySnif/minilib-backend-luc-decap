@@ -205,13 +205,13 @@ packages:
     os: [win32]
 
   '@hendec/backend@0.0.1':
-    resolution: {integrity: sha512-pGUyBnBk/eWQ0x2g2ExYE97lBFpHV1NmUOQ4RhQwRdtrQXni3Sq1iPXrDnfIxABFaeMCXxVg7eK7AbJxmmIe4A==}
+    resolution: {integrity: sha512-fPbnUAlh400ycwcdLJwHDxlNsSSq3YSMbRvAij8h7a8iLC0v4QPmEmI0GiosMKApbARHJxmkcfqfQZM+ngr2Og==}
 
   '@hendec/core@0.0.1':
-    resolution: {integrity: sha512-q28xKTuGJpQrq7gpJDdUoNDrgbrwjGi3yzV3ZkMZFqnETjn4yZMUkynU7nyJvLMEdbz7RLTy5wKD8w05c7BzYQ==}
+    resolution: {integrity: sha512-3ENK5WU2upFm1Am2fEHhE+9tcojKsD4oE+RIFlPX0qouS48Xo9T+ENzEqwC+XPfmwy0gqQk6P2IVxRpJTsCHfA==}
 
   '@hendec/types@0.0.1':
-    resolution: {integrity: sha512-u6ZPvnfX2+PMn6Ut8x7rHF8l0DsNspBe4melBM2oDzYIr0/C/eVdRTiYNSS8wQjYV7jrpqggsfOujNWgJQHZ3w==}
+    resolution: {integrity: sha512-JWlRsDfp6h2XTy5cDe1RIKzVHWQ3RR4tRFVEUE1GVuhVEQ4FSe4WoNGdvP2m02UDZvheik7kSenXEcaW3keS1Q==}
 
   '@scarf/scarf@1.4.0':
     resolution: {integrity: sha512-xxeapPiUXdZAE3che6f3xogoJPeZgig6omHEy1rIY5WVsB3H2BHNnZH+gHG6x91SCWyQCzWGsuL2Hh3ClO5/qQ==}
