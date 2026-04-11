@@ -12,7 +12,7 @@ import { prepareInsert } from '@hendec/backend/utils';
 import pool from '../config/database.js';
 
 // Error manager for specific error to catch associated to livres
-import { DuplicateEmpruntsError  } from "../errors/modulesErrors/EmpruntsErrors.js";
+import { DuplicateEmpruntsError  } from "../errors/empruntsErrors.js";
 import type { Emprunt } from "@hendec/types/minilib";
 
 

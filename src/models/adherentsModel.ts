@@ -11,7 +11,7 @@ import { prepareInsert } from '@hendec/backend/utils';
 import pool from '../config/database.js';
 
 // Error manager for specific error to catch associated to livres
-import { DuplicateAdherentsError } from "../errors/modulesErrors/adherentsErrors.js";
+import { DuplicateAdherentsError } from "../errors/adherentsErrors.js";
 
 import { createAdherentSchema } from '@hendec/types/minilib';
 import type { Adherent, CreateAdherentDto } from '@hendec/types/minilib';
