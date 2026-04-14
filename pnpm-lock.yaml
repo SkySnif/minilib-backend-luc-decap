@@ -211,7 +211,7 @@ packages:
     resolution: {integrity: sha512-3ENK5WU2upFm1Am2fEHhE+9tcojKsD4oE+RIFlPX0qouS48Xo9T+ENzEqwC+XPfmwy0gqQk6P2IVxRpJTsCHfA==}
 
   '@hendec/types@0.0.1':
-    resolution: {integrity: sha512-JWlRsDfp6h2XTy5cDe1RIKzVHWQ3RR4tRFVEUE1GVuhVEQ4FSe4WoNGdvP2m02UDZvheik7kSenXEcaW3keS1Q==}
+    resolution: {integrity: sha512-tKThUFln20Wi3csB8XrYvcNtGe+Nk38RBRHWDlRI4+xc47O880s+AOyW5PwplWW2MNpopx1QdXfezC6BbOlxIg==}
 
   '@scarf/scarf@1.4.0':
     resolution: {integrity: sha512-xxeapPiUXdZAE3che6f3xogoJPeZgig6omHEy1rIY5WVsB3H2BHNnZH+gHG6x91SCWyQCzWGsuL2Hh3ClO5/qQ==}

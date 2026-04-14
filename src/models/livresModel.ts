@@ -155,13 +155,14 @@ export const update = async (
 
     const setClause: string = champs.map((c, i) => `${c} = $${i + 1}`).join(', ');
 
+    // Id is last because value is $[index_arg] where the arg is ...champs + id
     const result: QueryResult<Livre> = await pool.query<Livre>(
         `UPDATE 
             livres 
         SET 
             ${setClause} 
         WHERE 
-            id = $${champs.length + 1} 
+            id = $${champs.length + 1}
         RETURNING 
             *`,
         [...valeurs, id]
