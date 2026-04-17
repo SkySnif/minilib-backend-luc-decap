@@ -205,13 +205,13 @@ packages:
     os: [win32]
 
   '@hendec/backend@0.0.1':
-    resolution: {integrity: sha512-fPbnUAlh400ycwcdLJwHDxlNsSSq3YSMbRvAij8h7a8iLC0v4QPmEmI0GiosMKApbARHJxmkcfqfQZM+ngr2Og==}
+    resolution: {integrity: sha512-Y9a1Z12V7+s9PUl6MUXu/aTBpc+WTEkmMmIdHNduE8hBR7V6Lo4zjoYEvdIRXDMNyKTfQeEH3lG2L2eJ1Yo/pA==}
 
   '@hendec/core@0.0.1':
-    resolution: {integrity: sha512-3ENK5WU2upFm1Am2fEHhE+9tcojKsD4oE+RIFlPX0qouS48Xo9T+ENzEqwC+XPfmwy0gqQk6P2IVxRpJTsCHfA==}
+    resolution: {integrity: sha512-zl09/3nDrVw2/klyi+5gvavjFaObJwARN9z11yP6JLLeR12Iwyzqp8tYKv8XtEtHyCbwUXxOM0ZiFPSs54pRMg==}
 
   '@hendec/types@0.0.1':
-    resolution: {integrity: sha512-tKThUFln20Wi3csB8XrYvcNtGe+Nk38RBRHWDlRI4+xc47O880s+AOyW5PwplWW2MNpopx1QdXfezC6BbOlxIg==}
+    resolution: {integrity: sha512-5wAqu2Pt8S9iRhugC+Ue1dyhaG+tfXpjaWQ7lrl/kp2zssgmVA26AOHmx/Hokze3PHSxGPFujaglgWl9khOebA==}
 
   '@scarf/scarf@1.4.0':
     resolution: {integrity: sha512-xxeapPiUXdZAE3che6f3xogoJPeZgig6omHEy1rIY5WVsB3H2BHNnZH+gHG6x91SCWyQCzWGsuL2Hh3ClO5/qQ==}
@@ -701,7 +701,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@hendec/core@0.0.1': {}
+  '@hendec/core@0.0.1':
+    dependencies:
+      zod: 4.3.6
 
   '@hendec/types@0.0.1':
     dependencies:

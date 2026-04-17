@@ -13,8 +13,13 @@ import pool from '../config/database.js';
 // Error manager for specific error to catch associated to livres
 import { DuplicateAdherentsError } from "../errors/adherentsErrors.js";
 
-import { createAdherentSchema } from '@hendec/types/minilib';
-import type { Adherent, CreateAdherentDto } from '@hendec/types/minilib';
+import { createAdherentSchema, filtreLivreSchema, updateAdherentSchema, deleteAdherentSchema } from '@hendec/types/minilib';
+import type { Adherent, FiltresLivreDto, CreateAdherentDto, UpdateAdherentDto, DeleteAdherentDto } from '@hendec/types/minilib';
+
+// ───────────────────────────────────────────────────────────────
+// ──── CONST for easier change in DB
+// ───────────────────────────────────────────────────────────────
+const adherentsTableName: string = "adherents"
 
 // ───────────────────────────────────────────────────────────────
 // ──── Private function ─ not exposed to route ───────────────────────
@@ -38,13 +43,13 @@ const genererNumeroAdherent = async (): Promise<string> =>
 // ───────────────────────────────────────────────────────────────
 
 /** @async @returns {Promise<Array>} Tous les adhérents actifs */
-export const findAll = async ()  : Promise<Adherent[]> => 
+export const findAll = async () : Promise<Adherent[]> => 
 {
     const result: QueryResult<Adherent> = await pool.query<Adherent>( 
         `SELECT 
             * 
         FROM 
-            adherents 
+            ${adherentsTableName} 
         WHERE 
             actif = true 
         ORDER BY 
@@ -55,14 +60,18 @@ export const findAll = async ()  : Promise<Adherent[]> =>
     return result.rows;
 };
 
-/** @async @param {number} id @returns {Promise<Object|null>} */
+
+/**
+ * Return all adherents
+ *
+ */
 export const findById = async ( id: number) => 
 {
     const result: QueryResult<Adherent> = await pool.query<Adherent>( 
         `SELECT 
             * 
         FROM 
-            adherents 
+            ${adherentsTableName} 
         WHERE 
             id = $1`, 
         [id]
@@ -99,7 +108,7 @@ export const create = async ( data: CreateAdherentDto): Promise<Adherent> =>
 
         const result: QueryResult<Adherent> = await pool.query<Adherent>( 
             `INSERT INTO 
-                adherents 
+                ${adherentsTableName} 
                     (${SQLField}) 
             VALUES 
                 (${SQLqueryvalue}) 
@@ -120,6 +129,42 @@ export const create = async ( data: CreateAdherentDto): Promise<Adherent> =>
         throw err; // autres erreurs DB
     }
 };
+
+
+/**
+* Met à jour un adherents
+*/
+export const update = async ( 
+    id: number, 
+    data:UpdateAdherentDto
+): Promise<Adherent|null> => 
+{
+    // Construction dynamique du SET
+    const champs: string[] = Object.keys( data);
+    const valeurs: (string | number | boolean | null)[] = Object.values(data);
+
+    if ( champs.length === 0) 
+        return findById(id);
+
+    const setClause: string = champs.map((c, i) => `${c} = $${i + 1}`).join(', ');
+
+    // Id is last because value is $[index_arg] where the arg is ...champs + id
+    const result: QueryResult<Adherent> = await pool.query<Adherent>(
+        `UPDATE 
+            ${adherentsTableName} 
+        SET 
+            ${setClause} 
+        WHERE 
+            id = $${champs.length + 1}
+        RETURNING 
+            *`,
+        [...valeurs, id]
+    );
+
+    return result.rows[0] || null;
+};
+
+
 /**
 * Disabled an adherent (soft delete — we are never deleting line in the BDD).
 * @async
@@ -130,7 +175,7 @@ export const desactiver = async ( id: number) : Promise<Adherent> =>
 {
     const result: QueryResult<Adherent> = await pool.query<Adherent>( 
         `UPDATE 
-            adherents 
+            ${adherentsTableName} 
         SET
             actif = false 
         WHERE 
