@@ -3,29 +3,35 @@
 
 import type { Request, Response } from 'express';
 
-import { BadRequestError, NotFoundError } from "@hendec/backend/utils";
+import { NotFoundError } from "@hendec/backend/utils";
+import { getValidated } from '@hendec/backend';
+ 
+import type { ParamIdDto } from '@hendec/types/param';
+import type { CreateLivreDto, FiltresLivreDto, UpdateLivreDto, DeleteLivreDto, LivreResponseDto, LivresResponseDto } from "@hendec/types/minilib";
 
-// import { Livre, FiltresLivre, CreateLivreDto } from '../types/livre.js';
-import type {  Livre, FiltresLivre, CreateLivreDto } from "@hendec/types/minilib";
 import * as livresModel from '../models/livresModel.js';
 
 /**
 * Récupère tous les livres avec filtres optionnels via query params.
 * GET /api/v1/livres?genre=Informatique&disponible=true&recherche=clean
 *
-* @param {import('express').Request} req - Requête Express
-* @param {import('express').Response} res - Réponse Express
 */
 export const getLivres = async( 
-    req: Request<{}, Livre[], {}, FiltresLivre>,
-    res: Response<Livre[]>
+    req: Request,
+    res: Response
 ) : Promise<void> => 
 {
+        const parsedFilters = getValidated<FiltresLivreDto>(req.validated?.query);
+    console.log( 1);
+    console.log( req.query);
+    console.log( 2);
+console.log( req.validated?.query);
+
         // req.query contient les paramètres de l'URL (?genre=...&disponible=...)
-        const livres: Livre[] = await livresModel.findAll( req.query);
+        const livres: LivresResponseDto[] = await livresModel.findAll( parsedFilters);
 
         if (livres.length === 0)
-            throw new NotFoundError( "No book find with these criteria")
+            throw new NotFoundError( "Book find with these criteria")
 
         res.json( livres);
 };
@@ -34,22 +40,18 @@ export const getLivres = async(
 * Récupère un livre par son id.
 * GET /api/v1/livres/:id
 *
-* @param {import('express').Request} req
-* @param {import('express').Response} res
 */
 export const getLivreById = async( 
-    req: Request<{ id: string }, Livre, {}, {}>,
-    res: Response<Livre>
+    req: Request,
+    res: Response
 ) : Promise<void> =>
 {
-    const id: number = Number(req.params.id)
-    if (isNaN(id))
-        throw new BadRequestError('Id invalide');
+    const parsedParams = getValidated<ParamIdDto>( req.validated?.params);
 
-    const livre: Livre|null = await livresModel.findById( id);
+    const livre: LivreResponseDto | null = await livresModel.findById( parsedParams);
 
    if (!livre)
-        throw new NotFoundError( `Livre id:${req.params.id}`);
+        throw new NotFoundError( `Book id ${parsedParams.id}`);
 
     res.json( livre);
 };
@@ -58,67 +60,58 @@ export const getLivreById = async(
 * Crée un nouveau livre.* POST /api/v1/livres
 * Body JSON attendu : { isbn, titre, auteur, annee, genre }
 *
-* @param {import('express').Request} req
-* @param {import('express').Response} res
 */
 export const createLivre = async ( 
-    req: Request<{}, Livre, CreateLivreDto, {}>,
-    res: Response) : Promise<void> => 
+    req: Request,
+    res: Response
+) : Promise<void> => 
 {
-    const champsObligatoires: (keyof CreateLivreDto)[] = ['isbn', 'titre', 'auteur'];
-    const manquants = champsObligatoires.filter( k => !req.body[k]);
+    // Midlleware zod valide : when Request is validated in the route, create a req.validated?params/body/query when validate is done. 
+    // Avoid to parse again. getValidated<T> return the validated message at the expected type
+    const parsedData = getValidated<CreateLivreDto>( req.validated?.body);
 
-    if ( manquants.length > 0)
-        throw new BadRequestError("Champs obligatoires manquants", { champs: manquants });
-
-    const nouveau: Livre = await livresModel.create(req.body);
+    const nouveau: LivreResponseDto = await livresModel.create( parsedData);
 
     // 201 Created — ressource créée avec succès
-    res.status(201).json(nouveau);
+    res.status(201).json( nouveau);
 };
 
 /**
-* Met à jour un livre existant.
+* Update a book.
 * PUT /api/v1/livres/:id
 *
-* @param {import('express').Request} req
-* @param {import('express').Response} res
 */
 export const updateLivre = async ( 
-    req: Request<{id : string}, Livre,  Livre, {}>,
-    res: Response) : Promise<void> => 
+    req: Request,
+    res: Response
+) : Promise<void> => 
 {
-   const id: number = Number(req.params.id)
-    if (isNaN(id))
-        throw new BadRequestError('Id invalide');
-    
-    const misAJour = await livresModel.update( id, req.body);
+    const parsedParams = getValidated<ParamIdDto>(req.validated?.params);
+    const parsedData = getValidated<UpdateLivreDto>(req.validated?.body);
+
+    const misAJour: LivresResponseDto | null = await livresModel.update( parsedParams, parsedData);
 
     if ( !misAJour) 
-        throw new NotFoundError(`Livre id:${req.params.id} non trouvé`);
+        throw new NotFoundError( `Book id ${parsedParams.id}`);
 
     res.json( misAJour);
 };
 
 /**
-* Supprime un livre.
+* Delete a book.
 * DELETE /api/v1/livres/:id
-*
-* @param {import('express').Request} req
-* @param {import('express').Response} res
 */
 export const deleteLivre = async ( 
-    req: Request<{id : string}, {},  {}, {}>,
-    res: Response) : Promise<void> => 
+    req: Request,
+    res: Response
+) : Promise<void> => 
 {
-    const id: number = Number(req.params.id)
-    if ( isNaN(id)) 
-        throw new BadRequestError('Id invalide');
+    const parsedParams = getValidated<DeleteLivreDto>(req.validated?.params);
     
-    const supprimé: boolean = await livresModel.remove( id);
+    const supprimé: boolean = await livresModel.remove(parsedParams);
 
     if ( !supprimé) 
-        throw new NotFoundError( `Livre id:${req.params.id} non trouvé`);
+        throw new NotFoundError( `Book id ${parsedParams.id}`);
 
     // 204 No Content — succès sans corps de réponse
     res.status(204).send();

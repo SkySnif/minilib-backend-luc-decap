@@ -2,24 +2,29 @@
 import type { Request, Response } from 'express';
 
 import { BadRequestError, NotFoundError } from "@hendec/backend/utils";
+import { getValidated } from '@hendec/backend';
 
-//import { Adherent, CreateAdherentDto } from '../types/adherent.js';
-import type { Adherent, CreateAdherentDto, UpdateAdherentDto, DeleteAdherentDto } from '@hendec/types/minilib';
+import type { paramIdSchemaDto } from '@hendec/types/param';
+import type { Adherent, CreateAdherentDto, UpdateAdherentDto, DeleteAdherentDto, FilterAdherentDto, DeleteLivreDto } from '@hendec/types/minilib';
 
 import * as adherentsModel from '../models/adherentsModel.js';
 
 /** GET /api/v1/adherents */
-//TODO : Add FilterDto and logic
 export const getAdherents = async ( 
-    req: Request<{}, Adherent[], {}, {}>,
-    res: Response) : Promise<void> => 
+    req: Request,
+    res: Response
+) : Promise<void> => 
 {
-    const adherents: Adherent[] = await adherentsModel.findAll();
+    // Midlleware zod valide : when Request is validated in the route, create a req.validated?params/body/query when validate is done. 
+    // Avoid to parse again. getValidated<T> return the validated message at the expected type
+    const parsedFilters = getValidated<FilterAdherentDto>(req.validated?.query);
 
-    // TODO: Add criteria like livres
+    const adherents: Adherent[] = await adherentsModel.findAll(parsedFilters);
+
     if (adherents.length === 0)
-        throw new NotFoundError( "No adherents find with these criteria")
+        throw new NotFoundError( "Member find with these criteria")
 
+    // No zod parsing for the output, done by middleware route
     res.json( adherents);
 };
 
@@ -27,81 +32,73 @@ export const getAdherents = async (
  * GET /api/v1/adherents/:id
  * Get Adherent by id
  *
- * @async
- * @param {Request<{id: string}, Adherent, {}, {}>} req 
- * @param {Response} res 
- * @returns {Promise<void>} 
  */
 export const getAdherentById = async ( 
-    req: Request<{id: string}, Adherent, {}, {}>,
-    res: Response) : Promise<void> => 
+    req: Request,
+    res: Response
+) : Promise<void> => 
 {   
-   const id: number = Number(req.params.id)
-    if (isNaN(id))
-        throw new BadRequestError( `Id invalide`);
+    const parsedParams = getValidated<paramIdSchemaDto>(req.validated?.params);
 
-    const adherent: Adherent = await adherentsModel.findById( id);
+    const adherent: Adherent = await adherentsModel.findById( parsedParams.id);
 
     if ( !adherent)
-        throw new NotFoundError(  `Adhérent id:${req.params.id} introuvable`);
+        throw new NotFoundError(`Member id ${parsedParams.id}`);
 
     res.json(adherent);
 };
 
 /** POST /api/v1/adherents */
 export const createAdherent = async ( 
-    req: Request<{}, Adherent, CreateAdherentDto, {}>,
-    res: Response) : Promise<void> => 
+    req: Request,
+    res: Response
+) : Promise<void> => 
 {
-    console.log('Hello')
-    // Obselete with zod validation
-    const champsObligatoires: (keyof CreateAdherentDto)[] = ['nom','prenom','email'];
-    const manquants = champsObligatoires.filter( k => !req.body[k]);
+    // Midlleware zod valide : when Request is validated in the route, create a req.validated?params/body/query when validate is done. 
+    // Avoid to parse again. getValidated<T> return the validated message at the expected type
+    const parsedData = getValidated<CreateAdherentDto>(req.validated?.body);
 
-    if ( manquants.length > 0)
-        throw new BadRequestError( 'Champs manquants', { champs: manquants } );
-
-    const nouveau: Adherent = await adherentsModel.create( req.body);
+    const nouveau: Adherent = await adherentsModel.create( parsedData);
 
     res.status(201).json( nouveau);
 };
 
 
 /**
-* Met à jour un livre existant.
+* update an existing member
 * PUT /api/v1/adherent/:id
 *
 */
 export const updateAdherent = async ( 
-    req: Request<{id : string}, Adherent,  UpdateAdherentDto, {}>,
+    req: Request,
     res: Response
 ) : Promise<void> => 
 {
-   const id: number = Number(req.params.id)
-    if (isNaN(id))
-        throw new BadRequestError('Id invalide');
-    
-    const misAJour = await adherentsModel.update( id, req.body);
+    const parsedParams = getValidated<paramIdSchemaDto>(req.validated?.params);
+    const parsedData = getValidated<UpdateAdherentDto>(req.validated?.body);
+
+    const misAJour: Adherent|null = await adherentsModel.update( parsedParams.id, parsedData);
 
     if ( !misAJour) 
-        throw new NotFoundError(`Livre id:${req.params.id} non trouvé`);
+        throw new NotFoundError(`Member id ${parsedParams.id}`);
 
     res.json( misAJour);
 };
 
 /** DELETE /api/v1/adherents/:id — soft delete */
 export const desactiverAdherent = async ( 
-    req: Request<{id: string}, Adherent, {}, {}>,
-    res: Response) : Promise<void> => 
+    req: Request,
+    res: Response
+) : Promise<void> => 
 {
-   const id: number = Number(req.params.id)
-    if (isNaN(id))
-        throw new NotFoundError( 'Id invalide');
+        // Midlleware zod valide : when Request is validated in the route, create a req.validated?params/body/query when validate is done. 
+        // Avoid to parse again. getValidated<T> return the validated message at the expected type
+        const parsedParams = getValidated<paramIdSchemaDto>(req.validated?.params);
 
-    const adherent: Adherent = await adherentsModel.desactiver( id);
+        const adherent: Adherent = await adherentsModel.desactiver(parsedParams.id);
 
-    if ( !adherent)
-        throw new BadRequestError(  'Adhérent id:${req.params.id} introuvable');
+        if ( !adherent)
+            throw new NotFoundError(`Member id ${parsedParams.id}`);
 
-    res.json( adherent);
+        res.json( adherent);
 };

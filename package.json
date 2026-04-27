@@ -6,7 +6,7 @@
   "private": true,
   "main": "src/app.js",
   "scripts": {
-    "lib-install": "pnpm uninstall @hendec/types; pnpm install @hendec/types; pnpm uninstall @hendec/backend; pnpm install @hendec/backend",
+    "lib-install": " rm -rf node_modules/ pnpm-lock.yaml && pnpm install",
     "build": "tsc -p ./tsconfig.build.json",
     "start": "node dist/app.js",
     "dev": "npm run lib-install && tsx --watch --env-file=.env src/app.ts",
@@ -16,6 +16,7 @@
     "@hendec/backend": "^0.0.1",
     "@hendec/types": "^0.0.1",
     "cors": "^2.8.6",
+    "date-fns": "^4.1.0",
     "express": "^5.2.1",
     "pg": "^8.20.0",
     "swagger-ui-express": "^5.0.1"

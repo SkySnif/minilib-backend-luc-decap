@@ -6,20 +6,20 @@
 import type { QueryResult, CountRow} from '@hendec/types/db';
 
 import { mapDBError } from "@hendec/backend/utils";
-import { prepareInsert } from '@hendec/backend/utils';
+import { prepareInsert, prepareWhere } from '@hendec/backend/utils';
 
 import pool from '../config/database.js';
 
 // Error manager for specific error to catch associated to livres
 import { DuplicateAdherentsError } from "../errors/adherentsErrors.js";
 
-import { createAdherentSchema, filtreLivreSchema, updateAdherentSchema, deleteAdherentSchema } from '@hendec/types/minilib';
-import type { Adherent, FiltresLivreDto, CreateAdherentDto, UpdateAdherentDto, DeleteAdherentDto } from '@hendec/types/minilib';
+import type { FilterAdherentDto, CreateAdherentDto, UpdateAdherentDto, DeleteAdherentDto, AdherentResponseDto } from '@hendec/types/minilib';
 
 // ───────────────────────────────────────────────────────────────
 // ──── CONST for easier change in DB
 // ───────────────────────────────────────────────────────────────
-const adherentsTableName: string = "adherents"
+const adherentsTableName: string = "t_adherents"
+const adherentsSelectViewName: string = "adherents"
 
 // ───────────────────────────────────────────────────────────────
 // ──── Private function ─ not exposed to route ───────────────────────
@@ -41,20 +41,43 @@ const genererNumeroAdherent = async (): Promise<string> =>
 // ───────────────────────────────────────────────────────────────
 // ──── Export function ─ exposed to route ───────────────────────
 // ───────────────────────────────────────────────────────────────
-
-/** @async @returns {Promise<Array>} Tous les adhérents actifs */
-export const findAll = async () : Promise<Adherent[]> => 
+/**
+ * Return list of member
+ * filter optional
+ *
+ */
+export const findAll = async (
+    filters: FilterAdherentDto = {}
+) : Promise<AdherentResponseDto[]> => 
 {
-    const result: QueryResult<Adherent> = await pool.query<Adherent>( 
+    // remove specific fields not in DB like search - specific condition will be added after the sql builder prepare select
+    const { search, ...dbFilters } = filters;
+
+    const { values, conditions } = prepareWhere( dbFilters);
+
+    // if search is pass in the filter build the specific condition for adherent where clause
+    if ( search !== undefined) 
+    {
+        const index = values.length + 1;
+
+        conditions.push( `(lower(nom) ILIKE lower($${index}) OR lower(prenom) ILIKE lower($${index}))`);
+        values.push( `%${filters.search}%`);
+    }
+    
+    const whereClause = conditions.length
+        ? `WHERE ${conditions.join(" AND ")}`
+        : "";
+
+    const result: QueryResult<AdherentResponseDto> = await pool.query<AdherentResponseDto>( 
         `SELECT 
             * 
         FROM 
-            ${adherentsTableName} 
-        WHERE 
-            actif = true 
+            ${adherentsSelectViewName} 
+            ${whereClause}
         ORDER BY 
             nom,
-            prenom`
+            prenom`,
+        values
     );
 
     return result.rows;
@@ -63,15 +86,16 @@ export const findAll = async () : Promise<Adherent[]> =>
 
 /**
  * Return all adherents
- *
  */
-export const findById = async ( id: number) => 
+export const findById = async ( 
+    id: number
+) : Promise<AdherentResponseDto> => 
 {
-    const result: QueryResult<Adherent> = await pool.query<Adherent>( 
+    const result: QueryResult<AdherentResponseDto> = await pool.query<AdherentResponseDto>( 
         `SELECT 
             * 
         FROM 
-            ${adherentsTableName} 
+            ${adherentsSelectViewName} 
         WHERE 
             id = $1`, 
         [id]
@@ -82,39 +106,33 @@ export const findById = async ( id: number) =>
 
 /**
 * Create a new adherent with a unique adherent number 
-* @async
-* @param {Object} data - { nom, prenom, email }
-* @returns {Promise<Object>} Adhérent créé
 */
-export const create = async ( data: CreateAdherentDto): Promise<Adherent> => 
+export const create = async ( 
+    data: CreateAdherentDto
+) : Promise<AdherentResponseDto> => 
 {
     try
     {
-        // Validate DTO aith Zod
-        // Optionnal because it's done in the middleware route but in case if the function is not called from the router/middleware
-        const parsedData: CreateAdherentDto = createAdherentSchema.parse(data);
-
         const numero: string = await genererNumeroAdherent();
 
-        // Retrieve the list of the CreateLivreDto's fields 
-        // TODO: Check details of this instruction
-        // On filtre les valeurs undefined
-        // Préparer SQL avec helper
-        const { champs, valeurs, SQLqueryvalue, SQLField } = prepareInsert(parsedData, 
+        // Retrieve the list of the CreateAdherentDto's fields 
+        // Prepare with SQL helper
+        const { fields, values, sqlFieldList, sqlQueryValues } = prepareInsert(
+            data, 
             {
                 numero_adherent: numero, // Extra data not in the json data / req.body but added in model - genererNumeroAdherent();
             }
         );
 
-        const result: QueryResult<Adherent> = await pool.query<Adherent>( 
+        const result: QueryResult<AdherentResponseDto> = await pool.query<AdherentResponseDto>( 
             `INSERT INTO 
                 ${adherentsTableName} 
-                    (${SQLField}) 
+                    (${sqlFieldList}) 
             VALUES 
-                (${SQLqueryvalue}) 
+                (${sqlQueryValues}) 
             RETURNING 
                 *`,
-            valeurs
+            values
         );
 
         return result.rows[0];
@@ -137,7 +155,7 @@ export const create = async ( data: CreateAdherentDto): Promise<Adherent> =>
 export const update = async ( 
     id: number, 
     data:UpdateAdherentDto
-): Promise<Adherent|null> => 
+): Promise<AdherentResponseDto|null> => 
 {
     // Construction dynamique du SET
     const champs: string[] = Object.keys( data);
@@ -147,9 +165,8 @@ export const update = async (
         return findById(id);
 
     const setClause: string = champs.map((c, i) => `${c} = $${i + 1}`).join(', ');
-
     // Id is last because value is $[index_arg] where the arg is ...champs + id
-    const result: QueryResult<Adherent> = await pool.query<Adherent>(
+    const result: QueryResult<AdherentResponseDto> = await pool.query<AdherentResponseDto>(
         `UPDATE 
             ${adherentsTableName} 
         SET 
@@ -167,13 +184,12 @@ export const update = async (
 
 /**
 * Disabled an adherent (soft delete — we are never deleting line in the BDD).
-* @async
-* @param {number} id
-* @returns {Promise<Object|null>} Adhérent mis à jour
 */
-export const desactiver = async ( id: number) : Promise<Adherent> => 
+export const desactiver = async ( 
+    id: number
+) : Promise<AdherentResponseDto> => 
 {
-    const result: QueryResult<Adherent> = await pool.query<Adherent>( 
+    const result: QueryResult<AdherentResponseDto> = await pool.query<AdherentResponseDto>( 
         `UPDATE 
             ${adherentsTableName} 
         SET
@@ -186,4 +202,48 @@ export const desactiver = async ( id: number) : Promise<Adherent> =>
     );
 
     return result.rows[0] || null;
+};
+
+
+/**
+ * Return list of member
+ * filter optional
+ *
+ */
+export const getSelectOptionList = async (
+    filters: FilterAdherentDto = {}
+) : Promise<AdherentResponseDto[]> => 
+{
+    // remove specific fields not in DB like search - specific condition will be added after the sql builder prepare select
+    const { search, ...dbFilters } = filters;
+
+    const { values, conditions } = prepareWhere( dbFilters);
+
+    // if search is pass in the filter build the specific condition for adherent where clause
+    if ( search !== undefined) 
+    {
+        const index = values.length + 1;
+
+        conditions.push( `(lower(nom) ILIKE lower($${index}) OR lower(prenom) ILIKE lower($${index}))`);
+        values.push( `%${filters.search}%`);
+    }
+    
+    const whereClause = conditions.length
+        ? `WHERE ${conditions.join(" AND ")}`
+        : "";
+
+    const result: QueryResult<AdherentResponseDto> = await pool.query<AdherentResponseDto>( 
+        `SELECT 
+            id as value
+            name as 
+        FROM 
+            ${adherentsTableName} 
+            ${whereClause}
+        ORDER BY 
+            nom,
+            prenom`,
+        values
+    );
+
+    return result.rows;
 };

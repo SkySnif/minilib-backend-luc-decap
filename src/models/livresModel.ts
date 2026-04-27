@@ -7,7 +7,7 @@
 *
 * @module livresModel
 */
-import type { QueryResult, CountRow} from '@hendec/types/db';
+import type { QueryResult} from '@hendec/types/db';
 
 import { mapDBError } from "@hendec/backend/utils";
 import { prepareInsert } from '@hendec/backend/utils';
@@ -17,49 +17,63 @@ import pool from '../config/database.js';
 // Error manager for specific error to catch associated to livres
 import { DuplicateLivreError  } from "../errors/livresErrors.js";
 
-// import { Livre, FiltresLivre, CreateLivreDto } from '../types/livre.js';
-import type { Livre, FiltresLivre, CreateLivreDto } from "@hendec/types/minilib";
+import type { ParamIdDto } from "@hendec/types/param";
+import type { FiltresLivreDto, CreateLivreDto, UpdateLivreDto, DeleteLivreDto, LivreResponseDto  } from "@hendec/types/minilib";
+
+// ───────────────────────────────────────────────────────────────
+// ──── CONST for easier change in DB
+// ───────────────────────────────────────────────────────────────
+const livresTableName: string = "t_livres"
+const livresSelectView: string = "livres"
 
 /**
-* Récupère tous les livres avec filtres optionnels.
-*
-* @async
-* @param {FiltresLivre} [filtres={}]
-* @returns {Promise<Livre[]>}
+* retrieve all books with optional filters
 */
-export const findAll = async ( filtres: FiltresLivre = {}) : Promise<Livre[]> => 
+export const findAll = async ( 
+    filtres: FiltresLivreDto = {}
+) : Promise<LivreResponseDto[]> => 
 {
     const conditions: string[] = [];
     const valeurs: string[] = [];
     let idx:number = 1;
 
-    if ( filtres.genre !== undefined) 
+    if ( filtres.genre !== undefined ) 
     {
         conditions.push( `genre = $${idx++}`);
         valeurs.push( filtres.genre);
     }
 
-    if ( filtres.disponible !== undefined) 
+    if ( filtres.disponible !== undefined ) 
     {
         conditions.push( `disponible = $${idx++}`);
-        valeurs.push( String( filtres.disponible));
+        valeurs.push( filtres.disponible);
     }
 
-    if ( filtres.recherche) 
+    if ( filtres.recherche ) 
     {
         conditions.push( `(titre ILIKE $${idx} OR auteur ILIKE $${idx})`);
         valeurs.push( `%${filtres.recherche}%`);
         idx++;
     }
 
-    // TODO : Remove WHERE and just concat AND * - and add 1=1 in WHERE clause in SQL statement
     const where: string = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
-    
-    const result: QueryResult<Livre> = await pool.query<Livre>(
+
+    console.log( valeurs);    
+    console.log(         `SELECT 
+            * 
+        FROM 
+            ${livresSelectView}
+        ${where} 
+        ORDER BY 
+            titre`,
+);    
+
+
+    const result: QueryResult<LivreResponseDto> = await pool.query<LivreResponseDto>(
         `SELECT 
             * 
         FROM 
-            livres 
+            ${livresSelectView}
         ${where} 
         ORDER BY 
             titre`,
@@ -70,51 +84,63 @@ export const findAll = async ( filtres: FiltresLivre = {}) : Promise<Livre[]> =>
 };
 
 /**
-* Trouve un livre par son id.
-* @async
-* @param {number} id
-* @returns {Promise<Livre|null>} Livre ou null
+* Find a book with is Id.
 */
-export const findById = async (id: number) : Promise<Livre|null> => 
+export const findById = async (
+    paramSelectId: ParamIdDto
+)
+: Promise<LivreResponseDto | null> => 
 {
-    const result: QueryResult<Livre> = await pool.query<Livre>(
-        `SELECT 
-            * 
-        FROM 
-            livres
-        WHERE 
-            id = $1`, 
-        [id]
-    );
+    try
+    {
+        const result: QueryResult<LivreResponseDto> = await pool.query<LivreResponseDto>(
+            `SELECT 
+                * 
+            FROM 
+                ${livresSelectView}
+            WHERE 
+                id = $1`, 
+            [paramSelectId.id]
+        );
 
-    return result.rows[0] || null;
+        return result.rows[0] || null;
+    }
+    catch (err: any) 
+    {
+        // Map error code Postgres or other with a custom type
+        const type: string = mapDBError( err);
+
+        if ( type === "unique_violation" )
+            throw new DuplicateLivreError();
+
+        throw err; // other DB error not customized
+    }    
 };
 
 /**
-* Crée un nouveau livre.
-* @async
-* @param {CreateLivreDto} data
-* @returns {Promise<Livre>} Le livre créé avec son id
+* Create a new book
 */
-export const create = async ( data: CreateLivreDto): Promise<Livre> => 
+export const create = async ( 
+    data: CreateLivreDto
+): Promise<LivreResponseDto> => 
 {
     try {
 
         // Retrieve the list of the CreateLivreDto's fields 
         const entries:[keyof CreateLivreDto, string | number | boolean][] = Object.entries(data).filter(
-            ([, v]) => v !== undefined
-        ) as [keyof CreateLivreDto, string | number | boolean][];
+                ([, v]) => v !== undefined
+            ) as [keyof CreateLivreDto, string | number | boolean][];
 
-        const champs: (string | number | boolean )[] = entries.map(([k]) => k);
-        const valeurs:(string | number | boolean )[] = entries.map(([, v]) => v);
+        const champs: (string | number | boolean | symbol )[] = entries.map(([k]) => k);
+        const valeurs:(string | number | boolean | symbol )[] = entries.map(([, v]) => v);
 
         // Build values string for SQL
-        const SQLqueryvalue: string = champs.map((_, i) => `$${i + 1}`).join(', ');
         const SQLField: string = champs.join(', ');
+        const SQLqueryvalue: string = champs.map((_, i) => `$${i + 1}`).join(', ');
 
-        const result: QueryResult<Livre> = await pool.query<Livre>( 
+        const result: QueryResult<LivreResponseDto> = await pool.query<LivreResponseDto>( 
             `INSERT INTO 
-                livres (${SQLField})
+                ${livresSelectView} (${SQLField})
             VALUES 
                 (${SQLqueryvalue})
             RETURNING 
@@ -126,68 +152,91 @@ export const create = async ( data: CreateLivreDto): Promise<Livre> =>
     }
     catch (err: any) 
     {
+        // Map error code Postgres or other with a custom type
         const type: string = mapDBError( err);
 
-        if ( type === "unique_violation")
+        if ( type === "unique_violation" )
             throw new DuplicateLivreError();
 
-        throw err; // autres erreurs DB
+        throw err; // other DB error not customized
     }
 };
 
 /**
-* Met à jour un livre.
-* @async
-* @param {number} id
-* @param {Livre} data - Champs à modifier
-* @returns {Promise<Livre|null>} Livre mis à jour ou null
+* update a Book
 */
 export const update = async ( 
-    id: number, 
-    data:Partial<Livre>): Promise<Livre|null> => 
+    paramUpdateId: ParamIdDto,
+    updateLivreData: UpdateLivreDto
+): Promise<LivreResponseDto | null> => 
 {
-    // Construction dynamique du SET
-    const champs: string[] = Object.keys( data);
-    const valeurs: (string | number | boolean | null)[] = Object.values(data);
+    try
+    {
+        // Construction dynamique du SET
+        const champs: string[] = Object.keys( updateLivreData);
+        const valeurs: (string | number | boolean | null)[] = Object.values(updateLivreData);
 
-    if ( champs.length === 0) 
-        return findById(id);
+        if ( champs.length === 0) 
+            return findById( paramUpdateId);
 
-    const setClause: string = champs.map((c, i) => `${c} = $${i + 1}`).join(', ');
+        const setClause: string = champs.map((c, i) => `${c} = $${i + 1}`).join(', ');
 
-    // Id is last because value is $[index_arg] where the arg is ...champs + id
-    const result: QueryResult<Livre> = await pool.query<Livre>(
-        `UPDATE 
-            livres 
-        SET 
-            ${setClause} 
-        WHERE 
-            id = $${champs.length + 1}
-        RETURNING 
-            *`,
-        [...valeurs, id]
-    );
+        // Id is last because value is $[index_arg] where the arg is ...champs + id
+        const result: QueryResult<LivreResponseDto> = await pool.query<LivreResponseDto>(
+            `UPDATE 
+                ${livresTableName} 
+            SET 
+                ${setClause} 
+            WHERE 
+                id = $${champs.length + 1}
+            RETURNING 
+                *`,
+            [...valeurs, paramUpdateId.id]
+        );
 
-    return result.rows[0] || null;
+        return result.rows[0] || null;
+    }
+    catch (err: any) 
+    {
+        // Map error code Postgres or other with a custom type
+        const type: string = mapDBError( err);
+
+        if ( type === "unique_violation" )
+            throw new DuplicateLivreError();
+
+        throw err; // other DB error not customized
+    }    
 };
 
 /**
-* Supprime un livre.
-* @async
-* @param {number} id
-* @returns {Promise<boolean>} true si supprimé
+* Delete a book
 */
-export const remove = async (id: number): Promise<boolean> => 
+export const remove = async (
+    deleteParam: DeleteLivreDto
+): Promise<boolean> => 
 {
-    const result: QueryResult<Livre> = await pool.query<Livre>(
-        `DELETE FROM 
-            livres 
-        WHERE 
-            id = $1 
-        RETURNING 
-            id`, 
-        [id]
-    );
+    try
+    {
+        const result: QueryResult<LivreResponseDto> = await pool.query<LivreResponseDto>(
+            `DELETE FROM 
+                ${livresTableName} 
+            WHERE 
+                id = $1 
+            RETURNING 
+                id`, 
+            [deleteParam.id]
+        );
 
-    return result.rowCount ? true : false;
+        return result.rowCount ? true : false;
+    }
+    catch (err: any) 
+    {
+        // Map error code Postgres or other with a custom type
+        const type: string = mapDBError( err);
+
+        if ( type === "unique_violation" )
+            throw new DuplicateLivreError();
+
+        throw err; // other DB error not customized
+    }    
 };
