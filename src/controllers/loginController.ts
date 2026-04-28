@@ -18,7 +18,7 @@ export const identify = async(
     res: Response
 ) : Promise<void> => 
 {
-        const login: LoginResponseDto = getValidated<LoginIdentifyDto>(req.validated?.query);
+        const login: LoginResponseDto = getValidated<LoginIdentifyDto>(req.validated?.body);
 
         // req.query contient les paramètres de l'URL (?genre=...&disponible=...)
         const logins: LoginResponseDto = await loginsModel.getUser( login);

@@ -27,7 +27,7 @@ export const getLivres = async(
         const livres: LivresResponseDto[] = await livresModel.findAll( parsedFilters);
 
         if (livres.length === 0)
-            throw new NotFoundError( "Book find with these criteria")
+            throw new NotFoundError( "Book with these criteria")
 
         res.json( livres);
 };
