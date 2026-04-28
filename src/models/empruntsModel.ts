@@ -110,6 +110,40 @@ export const findById = async (
     }
 };
 
+export const listIdNameAdherentAlreadyBooked = async ( 
+    adherent_id: number
+) : Promise<number> => 
+{
+    try
+    {
+        const result = await pool.query<{ numberLoan: string }>( 
+            `SELECT 
+                id,
+                nom,
+            FROM 
+                ${empruntsSelectView} 
+            WHERE 
+                adherent_id = $1 AND
+                date_retour_effective IS NULL
+            GROUP BY
+                adherent_id`, 
+            [adherent_id]
+        );
+
+        return Number(result.rows[0]?.numberLoan ?? 0);
+    }
+    catch (err: any) 
+    {
+        const type: string = mapDBError( err);
+
+        if ( type === "unique_violation")
+            throw new DuplicateEmpruntsError();
+
+        throw err; // autres erreurs DB
+    }
+};
+
+
 /**
  * Return all emprunts
  */

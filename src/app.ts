@@ -20,6 +20,7 @@ import { logger } from "@hendec/backend";
 import livresRouter from './routes/livres.js';
 import adherentsRouter from './routes/adherents.js';
 import empruntRouter from './routes/emprunts.js';
+import loginRouter from './routes/login.js';
 
 // ── Initialisation of Express' application  ──────────────────────────
 const app: Application = express();
@@ -49,6 +50,7 @@ app.use( `${env.MAIN_HTTP_ROUTE}/adherents`, adherentsRouter);
 
 // All emprunt's route are prefixe by  /api/v1/emprunt
 app.use( `${env.MAIN_HTTP_ROUTE}/emprunts`, empruntRouter);
+app.use( `${env.MAIN_HTTP_ROUTE}/login`, loginRouter);
 
 // health route — Check if server is running
 app.get( '/health', ( req: Request, res: Response) => 

@@ -214,7 +214,7 @@ packages:
     resolution: {integrity: sha512-CvKgUKbOPim/+Pq3IIJRJN606SsWHXG2kKoKsjqx/RNg67qplFppI0+E/eoNRArXcJk7y871WDPYhjzAON7cxg==}
 
   '@hendec/types@0.0.1':
-    resolution: {integrity: sha512-xCAQt6EzdWUpYqmxAY0bZkd0FhJCGqP0R9s9TRJ6RopX3tuldb+Pwe20ZkZHRW06qsrtamPiRczx++t5DOtj7w==}
+    resolution: {integrity: sha512-9EXGReB7L8Tc/sb7GFHQwaJMDKy8EiCi2A8DJ4SlJFVwGAYLDTQ9f++IQWEI5vUdORibcVCiHtLGtyhtl4p9Mw==}
 
   '@scarf/scarf@1.4.0':
     resolution: {integrity: sha512-xxeapPiUXdZAE3che6f3xogoJPeZgig6omHEy1rIY5WVsB3H2BHNnZH+gHG6x91SCWyQCzWGsuL2Hh3ClO5/qQ==}
@@ -571,8 +571,8 @@ packages:
     resolution: {integrity: sha512-DvEy55V3DB7uknRo+4iOGT5fP1slR8wQohVdknigZPMpMstaKJQWhwiYBACJE3Ul2pTnATihhBYnRhZQHGBiRw==}
     engines: {node: '>= 0.8'}
 
-  swagger-ui-dist@5.32.4:
-    resolution: {integrity: sha512-0AADFFQNJzExEN49SrD/34Nn9cxNxVLiydYl2MBwSZFPVXNkVwC/EFAjoezGGqE8oDegiDC+p47t8lKObCinMQ==}
+  swagger-ui-dist@5.32.5:
+    resolution: {integrity: sha512-7/FQfWe9A4qoyYFdAwy0chD0uDYidDp/ZT9VQ9LZlgD4AnnHJk8/+ytAA1HkJYOPySmK6helPDdJQMlcumt7HA==}
 
   swagger-ui-express@5.0.1:
     resolution: {integrity: sha512-SrNU3RiBGTLLmFU8GIJdOdanJTl4TOmT27tt3bWWHppqYmAZ6IDuEuBvMU6nZq0zLEe6b/1rACXCgLZqO6ZfrA==}
@@ -1142,14 +1142,14 @@ snapshots:
 
   statuses@2.0.2: {}
 
-  swagger-ui-dist@5.32.4:
+  swagger-ui-dist@5.32.5:
     dependencies:
       '@scarf/scarf': 1.4.0
 
   swagger-ui-express@5.0.1(express@5.2.1):
     dependencies:
       express: 5.2.1
-      swagger-ui-dist: 5.32.4
+      swagger-ui-dist: 5.32.5
 
   toidentifier@1.0.1: {}
 

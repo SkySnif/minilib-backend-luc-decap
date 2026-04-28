@@ -22,10 +22,6 @@ export const getLivres = async(
 ) : Promise<void> => 
 {
         const parsedFilters = getValidated<FiltresLivreDto>(req.validated?.query);
-    console.log( 1);
-    console.log( req.query);
-    console.log( 2);
-console.log( req.validated?.query);
 
         // req.query contient les paramètres de l'URL (?genre=...&disponible=...)
         const livres: LivresResponseDto[] = await livresModel.findAll( parsedFilters);

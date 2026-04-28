@@ -33,54 +33,56 @@ export const findAll = async (
     filtres: FiltresLivreDto = {}
 ) : Promise<LivreResponseDto[]> => 
 {
-    const conditions: string[] = [];
-    const valeurs: string[] = [];
-    let idx:number = 1;
-
-    if ( filtres.genre !== undefined ) 
+    try
     {
-        conditions.push( `genre = $${idx++}`);
-        valeurs.push( filtres.genre);
-    }
+        const conditions: string[] = [];
+        const valeurs: string[] = [];
+        let idx:number = 1;
 
-    if ( filtres.disponible !== undefined ) 
+        if ( filtres.genre !== undefined ) 
+        {
+            conditions.push( `genre = $${idx++}`);
+            valeurs.push( filtres.genre);
+        }
+
+        if ( filtres.disponible !== undefined ) 
+        {
+            conditions.push( `disponible = $${idx++}`);
+            valeurs.push( filtres.disponible);
+        }
+
+        if ( filtres.recherche ) 
+        {
+            conditions.push( `(titre ILIKE $${idx} OR auteur ILIKE $${idx})`);
+            valeurs.push( `%${filtres.recherche}%`);
+            idx++;
+        }
+
+        const where: string = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
+
+        const result: QueryResult<LivreResponseDto> = await pool.query<LivreResponseDto>(
+            `SELECT 
+                * 
+            FROM 
+                ${livresSelectView}
+            ${where} 
+            ORDER BY 
+                titre`,
+            valeurs
+        )
+
+        return result.rows;
+    }
+    catch (err: any) 
     {
-        conditions.push( `disponible = $${idx++}`);
-        valeurs.push( filtres.disponible);
-    }
+        // Map error code Postgres or other with a custom type
+        const type: string = mapDBError( err);
 
-    if ( filtres.recherche ) 
-    {
-        conditions.push( `(titre ILIKE $${idx} OR auteur ILIKE $${idx})`);
-        valeurs.push( `%${filtres.recherche}%`);
-        idx++;
-    }
+        if ( type === "unique_violation" )
+            throw new DuplicateLivreError();
 
-    const where: string = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
-
-    console.log( valeurs);    
-    console.log(         `SELECT 
-            * 
-        FROM 
-            ${livresSelectView}
-        ${where} 
-        ORDER BY 
-            titre`,
-);    
-
-
-    const result: QueryResult<LivreResponseDto> = await pool.query<LivreResponseDto>(
-        `SELECT 
-            * 
-        FROM 
-            ${livresSelectView}
-        ${where} 
-        ORDER BY 
-            titre`,
-        valeurs
-    )
-
-    return result.rows;
+        throw err; // other DB error not customized
+    }     
 };
 
 /**
